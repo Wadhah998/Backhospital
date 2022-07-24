@@ -83,7 +83,7 @@ class PatientViewSet(ViewSet):
                 filter_dictionary['form__teacher__schoolteacherids__school_id'] = request.user.id
             elif request.user.typeUser == 'parent':
                 filter_dictionary['parent_id'] = request.user.id
-            elif request.user.typeUser == 'doctor':
+            elif request.user.typeUser == 'doctor' and request.user.is_super == False:
                 filter_dictionary['supervise__doctor_id'] = request.user.id
                 filter_dictionary['supervise__accepted'] = True
             for i in request.query_params:
@@ -108,8 +108,8 @@ class PatientViewSet(ViewSet):
         if isinstance(patient_data, Exception):
             return Response(data={'error': str(patient_data)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
         medical_teacher_data = None
-        return Response({**self.serializer_class(patient_data).data,
-                         'school': patient_data.form_set.first().teacher.schoolteacherids.school.name},
+        return Response({**self.serializer_class(patient_data).data
+                      },
                         status=HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -203,7 +203,8 @@ consultations, consultation = RenderVousViewSet.get_urls()
 diagnostics, diagnostic = DiagnosticViewSet.get_urls()
 
 urlpatterns = [
-    path('', patients), path('/<int:pk>', patient),
+    path('', patients),
+    path('/<int:pk>', patient),
     path('/supervises', supervises),
     path('/supervises/<int:pk>', supervise),
     path('/consultations', consultations),

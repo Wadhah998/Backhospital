@@ -45,7 +45,9 @@ class TokenViewSet(RestViewSet):
             "typeUser": user.typeUser,
             "name": user.name,
             "familyName": user.familyName if hasattr(user, "familyName") else None,
-            "is_super": user.is_super if hasattr(user, "is_super") else None
+            "is_super": user.is_super if hasattr(user, "is_super") else None,
+            "speciality": user.speciality if hasattr(user, "speciality") else None
+
         })
 
     def signup(self, request, *args, **kwargs):
@@ -125,9 +127,10 @@ class UserViewSet(ViewSet):
         self.fields = self.service.fields
         user = UserService().filter_by({'loginNumber': request.data.get('loginNumber')}).first()
         if user is not None and user.is_active:
-            return Response(data={'created': True}, status=HTTP_401_UNAUTHORIZED)
+            return Response(data={'created': True,'error':'loginNumber must be different'}, status=HTTP_401_UNAUTHORIZED)
         for i in self.fields:
             data[i] = request.data.get(i)
+        print(data)
         localisation = self.localisation_service.filter_by(request.data.get('localisation')).first()
         if localisation is None:
             localisation = self.localisation_service.create(data=request.data.get('localisation'))
@@ -142,12 +145,14 @@ class UserViewSet(ViewSet):
         return Response(data=self.serializer_class(user).data, status=HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        if request.user.typeUser != 'admin' and request.user.typeUser != 'superdoctor':
-            self.service = PersonService()
+        if request.user.typeUser != 'admin' :
+         self.service = PersonService()
         user = self.service.retrieve(pk)
         if user is None:
             return Response(data={"error": "لم يتم العثور على المستخدم"}, status=HTTP_404_NOT_FOUND)
         else:
+            print(hasattr(user, 'familyName'))
+            print(hasattr(user, 'speciality'))
             if hasattr(user, 'familyName') is True:
                 if hasattr(user, 'speciality') is True:
                     return return_serialized_data_or_error_response(_object=user, response_code=HTTP_200_OK,
@@ -164,11 +169,12 @@ class UserViewSet(ViewSet):
             self.service = PersonService()
             filter_data['typeUser'] = 'teacher'
             filter_data['schoolteacherids__school_id'] = request.user.id
-        elif request.user.typeUser == 'superdoctor':
+        elif request.user.typeUser == 'superdoctor' :
             self.serializer_class = DoctorSerializer
             self.service = DoctorService()
             filter_data['is_super'] = False
-            filter_data['super_doctor_id'] = request.user.id
+
+
         for i in request.query_params:
             if self.service.fields.get(i) is None:
                 return Response(data={'error': f'{i} is not an attribute for the user model'})

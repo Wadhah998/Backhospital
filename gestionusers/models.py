@@ -48,7 +48,8 @@ class PersonManager(UserManager):
                 'address': address,
                 'is_active': is_active,
                 'localisation_id': localisation_id,
-                'username': name + ' ' + loginNumber
+                'username': name + ' ' + loginNumber,
+                'email': email
             }
             if typeUser == 'admin' or typeUser == 'school':
                 return super().create(name=name, loginNumber=loginNumber, telephone=telephone, password=password,
@@ -146,7 +147,7 @@ LocalisationSerializer = create_model_serializer(name='LocalisationSerializer', 
 
 UserSerializer = create_model_serializer(model=User, name='UserSerializer', app_label=app_label,
                                          options={
-                                             'fields': ['id', 'name', 'email', 'telephone', 'email',
+                                             'fields': ['id', 'name', 'telephone', 'email',
                                                         'localisation', 'typeUser', 'loginNumber', 'password'],
                                              'depth': 1},
                                          fields={'localisation': LocalisationSerializer(read_only=True)})
@@ -159,5 +160,10 @@ ParentSerializer = create_model_serializer(model=Parent, name='ParentSerializer'
 TeacherSerializer = create_model_serializer(model=Teacher, name='TeacherSerializer', app_label=app_label)
 DoctorSerializer = create_model_serializer(model=Doctor, name='DoctorSerializer', app_label=app_label,
                                            options={'fields': ['id', 'name', 'loginNumber', 'localisation', 'telephone',
-                                                               'typeUser', 'email', 'password', 'speciality'],
+                                                               'typeUser', 'email', 'password', 'speciality','familyName','super_doctor_id',],
                                                     'depth': 1})
+SchoolSerializer = create_model_serializer(model=School, name='SchoolSerializer', app_label=app_label,
+                                           options={'fields': ['id', 'name', 'loginNumber', 'localisation', 'telephone',
+                                                               'typeUser', 'email', 'password',],
+                                                    'depth': 1})
+

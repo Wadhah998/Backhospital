@@ -41,6 +41,7 @@ DOCTOR_FIELDS = {
     **PERSON_FIELDS,
     'speciality': {'type': 'text', 'required': False},
     'is_super': {'type': 'bool', 'required': False}
+
 }
 
 
@@ -93,9 +94,13 @@ class LoginSignUpService(object):
         return self.person_service.create(data)
 
 
+class SchoolService(Service):
+    def __init__(self, repository=Repository(model=Person)):
+        super().__init__(repository, fields=PERSON_FIELDS)
 class PersonService(Service):
     def __init__(self, repository=Repository(model=Person)):
         super().__init__(repository, fields=PERSON_FIELDS)
+
 
     def reset_password(self, _id: int, password):
         user = self.repository.retrieve(_id)

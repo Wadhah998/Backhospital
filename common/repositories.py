@@ -14,12 +14,14 @@ class Repository(object):
 
     def put(self, _id: int, data: dict):
         _object = self.model.objects.get(id=_id)
+        print(data)
         if _object is None:
             return Exception('object not found')
         else:
             for i in data:
                 if hasattr(_object, i) and getattr(_object, i) != data[i]:
                     setattr(_object, i, data[i])
+
             if data.get('password') is not None and isinstance(_object, AbstractUser) or \
                     issubclass(_object.__class__, AbstractUser):
                 _object.set_password(data.get('password'))
